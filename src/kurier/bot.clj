@@ -23,6 +23,16 @@
 
 (def forms (atom {}))
 
+(def user-state (atom {}))
+
+(def empty-state {:next-question 0 :form nil})
+
+(defn init-state [form]
+  (assoc empty-state :form form))
+
+(defn update-state [sender-id state]
+  (reset! user-state (assoc @user-state sender-id state)))
+
 (defn digest-form [request]
   (reset! forms (assoc @forms (:id request) request)))
 
@@ -47,19 +57,28 @@
 (defn refer-article [form]
   (:description form))
 
-(defn choice-to-button [n choice]
+(defn tilde-split [s] (s/split s #"~"))
+
+(defn postback-params [s] (drop 1 (tilde-split s)))
+
+(defn choice-to-button [q n choice]
   {:type "postback"
    :title choice
-   :payload (str "CHOICE_" n)})
+   :payload (str "CHOICE~" q "~" n)})
 
-(defn choices-to-buttons [choices]
-  (map-indexed choice-to-button choices))
+(defn choices-to-buttons [q choices]
+  (map-indexed (partial choice-to-button q) choices))
 
-(defn ask [item]
+(defn ask [q item]
   (case (:type item)
         "MULTIPLE_CHOICE"
-        (fb/button-template (get-in item [:payload :title]) (choices-to-buttons (get-in item [:payload :choices])))
+        (fb/button-template (get-in item [:payload :title]) (choices-to-buttons q (get-in item [:payload :choices])))
         nil))
+
+(defn next [state]
+  (let [form (get @forms (:form state))
+        q (:next-question state)]
+    (ask q (first (:items (first (vals @forms)))))))
 
 (defn on-message [payload]
   (println "on-message payload:")
@@ -69,9 +88,7 @@
         time-of-message (get-in payload [:timestamp])
         message-text (get-in payload [:message :text])]
     (cond
-      (s/includes? (s/lower-case message-text) "forms") [(fb/text-message (str @forms))]
-      (s/includes? (s/lower-case message-text) "ask") [(ask (first (:items (first (vals @forms)) (fb/text-message (str @forms)))))]
-      (s/includes? (s/lower-case message-text) "image") [(fb/image-message "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/M101_hires_STScI-PRC2006-10a.jpg/1280px-M101_hires_STScI-PRC2006-10a.jpg")]
+      (s/includes? (s/lower-case message-text) "ask") [(ask 0 (first (:items (first (vals @forms)) (fb/text-message (str @forms)))))]
       ; If no rules apply echo the user's message-text input
       :else [(fb/text-message message-text)])))
 
@@ -106,8 +123,24 @@
       (= postback "GET_STARTED")
       (react-to-get-started sender-id)
 
-      :else
-      [(fb/text-message "Sorry, I don't know how to handle that postback")])))
+      (= postback s/starts-with? "ARTICLE")
+      (let [form (first (vals @forms))
+            state (init-state form)]
+        (do
+          (update-state sender-id state)
+          (next state)))
+
+      (= postback s/starts-with? "CHOICE")
+      (let [params (postback-params postback)
+            q (nth params 0)
+            c (nth params 1)
+            state (get @user-state sender-id)]
+        (do
+          (record-partial-response q c)
+          (update-state sender-id (assoc state :next-question (+ 1 (:next-question state))))
+          (next state)))
+
+      :else [(fb/text-message "Sorry, I don't know how to handle that postback")])))
 
 (defn on-attachments [payload]
   (println "on-attachment payload:")
