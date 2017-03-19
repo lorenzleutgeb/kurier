@@ -83,3 +83,17 @@
             (println (str "Incoming Messaging Event: " messaging-event))
             (doseq [reply (dispatch messaging-event on-message on-postback on-attachments)]
               ((reply-to messaging-event) reply))))))))
+
+(defn button-message [text buttons]
+  {:attachment {:type "template"
+                :payload { :template_type "button"
+                           :text text
+                           :buttons buttons}}})
+
+(defn get-user-profile [psid]
+    (let [response (http/get (str "https://graph.facebook.com/v2.6/" psid)
+                    {:query-params {"access_token" PAGE_ACCESS_TOKEN
+                                    "fields" "first_name,last_name,profile_pic,locale,timezone,gender"}
+                     :headers {"Content-Type" "application/json"}
+                     :insecure? true})]
+       (json/read-str (:body @response) :key-fn keyword)))
