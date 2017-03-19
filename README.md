@@ -6,7 +6,7 @@ A Facebook Messenger Bot Example in Clojure
 
 1. Setup a Facebook Page, Facebook app, create a Page Access Token and link the app to the page by following this [step-by-step guide](https://github.com/prometheus-ai/fb-messenger-clj/wiki/Facebook-Setup).
 
-2. Download the repository: [lemmings-io/02-facebook-example](https://github.com/lemmings-io/02-facebook-example/archive/master.zip)
+2. Download the repository: [lemmings-io/02-kurier](https://github.com/lemmings-io/02-kurier/archive/master.zip)
 
 3. Extract it into the `/lemmings/clojure/projects` directory.
 
@@ -19,9 +19,9 @@ A Facebook Messenger Bot Example in Clojure
 
 1. Start a new VM shell session via `vagrant ssh` in your terminal.
 
-2. Once logged in to the VM shell change into the facebook-example project directory
+2. Once logged in to the VM shell change into the kurier project directory
 
-		cd 02-facebook-example/
+		cd 02-kurier/
 
 3. Run `ngrok http 3000` ([read more about ngrok](https://ngrok.com))
 

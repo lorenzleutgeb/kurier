@@ -1,12 +1,12 @@
-(ns facebook-example.web
+(ns kurier.web
   (:gen-class)
   (:require [compojure.core :refer :all]
             [compojure.route :as route]
             [ring.middleware.defaults :refer :all]
             [ring.middleware.json :refer [wrap-json-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]
-            [facebook-example.facebook :as fb]
-            [facebook-example.bot :as bot]
+            [kurier.facebook :as fb]
+            [kurier.bot :as bot]
             ; Dependencies via Heroku Example
             [compojure.handler :refer [site]]
             [clojure.java.io :as io]
@@ -24,7 +24,10 @@
                    (fb/handle-message request bot/on-message bot/on-postback bot/on-attachments)
                    {:status 200})
   (GET "/webhook" request
-                  (fb/validate-webhook request)))
+                  (fb/validate-webhook request))
+  (POST "/form" request
+                (bot/digest-form (get request :params))
+                {:status 200}))
 
 (def app
   (-> (wrap-defaults fb-routes api-defaults)

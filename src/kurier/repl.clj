@@ -1,6 +1,6 @@
-(ns facebook-example.repl
+(ns kurier.repl
   (:gen-class)
-  (:require [facebook-example.bot :as bot]
+  (:require [kurier.bot :as bot]
             [clj-time.core :as time]
             [clj-time.coerce :as c]
             [clojure.string :as s]

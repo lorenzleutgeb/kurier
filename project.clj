@@ -1,4 +1,4 @@
-(defproject facebook-example "0.1.0-SNAPSHOT"
+(defproject kurier "0.1.0-SNAPSHOT"
   :description "Facebook Messenger Bot in Clojure"
   :url "http://example.com/FIXME"
   :license {:name "Eclipse Public License"
@@ -17,9 +17,9 @@
   :plugins [[lein-ring "0.9.7"]
             [lein-environ "1.1.0"]]
   ;:hooks [environ.leiningen.hooks]
-  :ring {:handler facebook-example.web/app}
-  :main facebook-example.repl
-  :aot [facebook-example.web facebook-example.repl]
-  :uberjar-name "facebook-example-standalone.jar")
+  :ring {:handler kurier.web/app}
+  :main kurier.repl
+  :aot [kurier.web kurier.repl]
+  :uberjar-name "kurier-standalone.jar")
   ; :profiles {:default [:base :dev :user]
   ;            #_:production #_{:env {:production false}}})

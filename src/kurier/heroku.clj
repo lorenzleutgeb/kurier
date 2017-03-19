@@ -1,4 +1,4 @@
-(ns facebook-example.heroku
+(ns kurier.heroku
   (:require [environ.core :refer [env]]))
 
 (def heroku-metadata {:app-name (env :heroku-app-name)

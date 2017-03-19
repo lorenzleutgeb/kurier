@@ -1,4 +1,4 @@
-(ns facebook-example.facebook
+(ns kurier.facebook
   (:gen-class)
   (:require [clojure.string :as s]
             [org.httpkit.client :as http]
@@ -32,6 +32,20 @@
               (println "Error sending message to FB:")
               (println @response))))
       (catch Exception e (do (.printStackTrace e)))))
+
+;(defn button-message [text button-title web-url]
+;  {:attachment {:type "template"
+;                :payload {:template_type "button"
+;                          :text text
+;                          :buttons [{:type "web_url"
+;                                     :title button-title
+;                                     :url web-url)))))
+
+(defn button-template [text buttons]
+  {:attachment {:type "template"
+                :payload {:template_type "button"
+                          :text text
+                          :buttons buttons}}})
 
 (defn send-message [recipient-id message]
   (send-api {:recipient {:id recipient-id}
